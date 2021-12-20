@@ -2,6 +2,7 @@ import os
 import sqlite3
 import dotenv
 from sqlalchemy import create_engine
+from sqlite3 import Error
 
 # load .env file
 dotenv.load_dotenv(dotenv.find_dotenv())
@@ -9,12 +10,12 @@ dotenv.load_dotenv(dotenv.find_dotenv())
 
 class Sqlite:
 
-    def __init__(self, table_schema: str, table_name: str, column_name: str, data_type: str, column_type: str):
-        self.table_schema = table_schema
-        self.table_name = table_name
-        self.column_name = column_name
-        self.data_type = data_type
-        self.column_type = column_type
+    def __init__(self):
+        # self.table_schema = table_schema
+        # self.table_name = table_name
+        # self.column_name = column_name
+        # self.data_type = data_type
+        # self.column_type = column_type
         self.has_sensitive = "N"
         self.is_empty_table = "N"
         self.regexp_ip = "N"
@@ -30,9 +31,12 @@ class Sqlite:
 
     @staticmethod
     def create_connection():
-        sqlite3.connect("../base.db")
-        print("Connect to SQLITE.")
-        return True
+        conn = None
+        try:
+            conn = sqlite3.connect("../datasets/base_sqlite.db")
+        except Error as e:
+            print(e)
+        return conn
 
     @staticmethod
     def check_connection():
@@ -112,21 +116,13 @@ class Sqlite:
                        'executed char(1) '
                        ');')
 
-    @staticmethod
-    def insert_mysql_to_sqlite(self, cursor_sqlite=None, con_sqlite=None):
-
-        # Insert a row of data
-        cursor_sqlite.execute(
-            "INSERT INTO base (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, DATE_TYPE, COLUMN_TYPE, HAS_SENSITIVE, "
-            "IS_EMPTY_TABLE, REGEX_PHONE, REGEX_EMAIL, REGEX_ADDRESS, REGEX_LINKS, "
-            "REGEX_SOCIAL_MEDIA, REGEX_CPF, REGEX_CREDIT_CARD, REGEX_NAME, EXECUTED, REGEX_IP) VALUES ('" +
-            self.table_schema + "','" + self.table_name + "','" + self.column_name + "','" + self.data_type + "','" +
-            self.column_type + "', '" + self.has_sensitive + "', '" + self.is_empty_table + "', '" + self.regex_phone +
-            "', '" + self.regexp_email + "', '" + self.regex_address + "', '" + self.regex_links + "', '"
-            + self.regex_social_media + "', '" + self.regex_cpf + "', '" + self.regex_credit_card +
-            "', '" + self.regex_name + "', '" + self.executed + "', '" + self.regexp_ip + "');")
-
-        # Save (commit) the changes
-        con_sqlite.commit()
-
-        print("Dados inseridos no SQLite.")
+    def insert_into_base(self, conn, data):
+        sql = "insert into base (conceitual_data, data_classification, table_schema, table_name, column_name, " \
+              "date_type, column_type, has_sensitive, is_empty_table, regex_ip, regex_phone, regex_email, " \
+              "regex_address, regex_links, regex_social_media, regex_cpf, regex_credit_card, regex_name) values " \
+              "(?, ?, ?, ?, ?, ?, ?, '" + self.has_sensitive + "', '" + self.is_empty_table + "', '" + self.regexp_ip + "', '" + self.regex_phone + "', '" + self.regexp_email + "', '" + self.regex_address + "', '" + self.regex_links + "', '" + self.regex_social_media + "', '" + self.regex_cpf + "', '" + self.regex_credit_card + "', '" + self.regex_name + "'); "
+        print(sql)
+        cursor = conn.cursor()
+        cursor.execute(sql, data)
+        conn.commit()
+        return True
