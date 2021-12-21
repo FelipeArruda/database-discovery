@@ -1,7 +1,9 @@
 import os
 import sqlite3
 import dotenv
+from datetime import datetime
 from sqlalchemy import create_engine
+from sqlite3 import Error
 
 # load .env file
 dotenv.load_dotenv(dotenv.find_dotenv())
@@ -9,14 +11,33 @@ dotenv.load_dotenv(dotenv.find_dotenv())
 
 class Sqlite:
 
-    def __init__(self, val):
-        self.val = val
+    def __init__(self):
+        # self.table_schema = table_schema
+        # self.table_name = table_name
+        # self.column_name = column_name
+        # self.data_type = data_type
+        # self.column_type = column_type
+        self.has_sensitive = "N"
+        self.is_empty_table = "N"
+        self.regexp_ip = "N"
+        self.regex_phone = "N"
+        self.regexp_email = "N"
+        self.regex_address = "N"
+        self.regex_links = "N"
+        self.regex_social_media = "N"
+        self.regex_cpf = "N"
+        self.regex_credit_card = "N"
+        self.regex_name = "N"
+        self.executed = "N"
 
     @staticmethod
     def create_connection():
-        sqlite3.connect("../base.db")
-        print("Connect to SQLITE.")
-        return True
+        conn = None
+        try:
+            conn = sqlite3.connect("../datasets/base_sqlite.db")
+        except Error as e:
+            print(e)
+        return conn
 
     @staticmethod
     def check_connection():
@@ -47,13 +68,13 @@ class Sqlite:
         engine = create_engine(os.getenv("SQLITE_PATH") + os.getenv("SQLITE_DATABASE"))
 
         # table: name
-        engine.execute('CREATE TABLE IF NOT EXISTS "names" ('                       
+        engine.execute('CREATE TABLE IF NOT EXISTS "names" ('
                        'id integer PRIMARY KEY AUTOINCREMENT,'
                        'name VARCHAR (500) '
                        ');')
 
         # table: terms
-        engine.execute('CREATE TABLE IF NOT EXISTS "terms" ('                       
+        engine.execute('CREATE TABLE IF NOT EXISTS "terms" ('
                        'id integer PRIMARY KEY AUTOINCREMENT,'
                        'term VARCHAR (500) '
                        ');')
@@ -69,7 +90,7 @@ class Sqlite:
                        ');')
 
         # table: base
-        engine.execute('CREATE TABLE IF NOT EXISTS "base" ('                       
+        engine.execute('CREATE TABLE IF NOT EXISTS "base" ('
                        'id integer PRIMARY KEY AUTOINCREMENT,'
                        'conceitual_data VARCHAR (500), '
                        'data_classification VARCHAR (500), '
@@ -96,6 +117,16 @@ class Sqlite:
                        'executed char(1) '
                        ');')
 
+    def insert_into_base(self, conn, data):
+        sql = "insert into base (conceitual_data, data_classification, table_schema, table_name, column_name, " \
+              "date_type, column_type, has_sensitive, is_empty_table, regex_ip, regex_phone, regex_email, " \
+              "regex_address, regex_links, regex_social_media, regex_cpf, regex_credit_card, regex_name, executed, date) values " \
+              "(?, ?, ?, ?, ?, ?, ?, '" + self.has_sensitive + "', '" + self.is_empty_table + "', '" + self.regexp_ip +\
+              "', '" + self.regex_phone + "', '" + self.regexp_email + "', '" + self.regex_address + "', '" + self.regex_links +\
+              "', '" + self.regex_social_media + "', '" + self.regex_cpf + "', '" + self.regex_credit_card + "', '" + self.regex_name + "', '" + self.executed +\
+              "', '" + datetime.today().strftime('%d-%m-%Y %H:%M:%S') + "'); "
 
-
-
+        cursor = conn.cursor()
+        cursor.execute(sql, data)
+        conn.commit()
+        return cursor.lastrowid
