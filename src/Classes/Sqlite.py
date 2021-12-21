@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import dotenv
+from datetime import datetime
 from sqlalchemy import create_engine
 from sqlite3 import Error
 
@@ -119,10 +120,13 @@ class Sqlite:
     def insert_into_base(self, conn, data):
         sql = "insert into base (conceitual_data, data_classification, table_schema, table_name, column_name, " \
               "date_type, column_type, has_sensitive, is_empty_table, regex_ip, regex_phone, regex_email, " \
-              "regex_address, regex_links, regex_social_media, regex_cpf, regex_credit_card, regex_name) values " \
-              "(?, ?, ?, ?, ?, ?, ?, '" + self.has_sensitive + "', '" + self.is_empty_table + "', '" + self.regexp_ip + "', '" + self.regex_phone + "', '" + self.regexp_email + "', '" + self.regex_address + "', '" + self.regex_links + "', '" + self.regex_social_media + "', '" + self.regex_cpf + "', '" + self.regex_credit_card + "', '" + self.regex_name + "'); "
-        print(sql)
+              "regex_address, regex_links, regex_social_media, regex_cpf, regex_credit_card, regex_name, executed, date) values " \
+              "(?, ?, ?, ?, ?, ?, ?, '" + self.has_sensitive + "', '" + self.is_empty_table + "', '" + self.regexp_ip +\
+              "', '" + self.regex_phone + "', '" + self.regexp_email + "', '" + self.regex_address + "', '" + self.regex_links +\
+              "', '" + self.regex_social_media + "', '" + self.regex_cpf + "', '" + self.regex_credit_card + "', '" + self.regex_name + "', '" + self.executed +\
+              "', '" + datetime.today().strftime('%d-%m-%Y %H:%M:%S') + "'); "
+
         cursor = conn.cursor()
         cursor.execute(sql, data)
         conn.commit()
-        return True
+        return cursor.lastrowid
