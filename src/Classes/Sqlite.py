@@ -92,6 +92,8 @@ class Sqlite:
         # table: base
         engine.execute('CREATE TABLE IF NOT EXISTS "base" ('
                        'id integer PRIMARY KEY AUTOINCREMENT,'
+                       'server_name VARCHAR (500), '
+                       'database VARCHAR (500), '
                        'conceitual_data VARCHAR (500), '
                        'data_classification VARCHAR (500), '
                        'table_schema VARCHAR (500), '
@@ -118,10 +120,10 @@ class Sqlite:
                        ');')
 
     def insert_into_base(self, conn, data):
-        sql = "insert into base (conceitual_data, data_classification, table_schema, table_name, column_name, " \
+        sql = "insert into base (server_name, database, conceitual_data, data_classification, table_schema, table_name, column_name, " \
               "date_type, column_type, has_sensitive, is_empty_table, regex_ip, regex_phone, regex_email, " \
               "regex_address, regex_links, regex_social_media, regex_cpf, regex_credit_card, regex_name, executed, date) values " \
-              "(?, ?, ?, ?, ?, ?, ?, '" + self.has_sensitive + "', '" + self.is_empty_table + "', '" + self.regexp_ip +\
+              "(?, ?, ?, ?, ?, ?, ?, ?, ?, '" + self.has_sensitive + "', '" + self.is_empty_table + "', '" + self.regexp_ip +\
               "', '" + self.regex_phone + "', '" + self.regexp_email + "', '" + self.regex_address + "', '" + self.regex_links +\
               "', '" + self.regex_social_media + "', '" + self.regex_cpf + "', '" + self.regex_credit_card + "', '" + self.regex_name + "', '" + self.executed +\
               "', '" + datetime.today().strftime('%d-%m-%Y %H:%M:%S') + "'); "
