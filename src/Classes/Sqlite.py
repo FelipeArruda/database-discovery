@@ -1,4 +1,5 @@
 import os
+import re
 import sqlite3
 import dotenv
 from datetime import datetime
@@ -121,14 +122,31 @@ class Sqlite:
 
     def insert_into_base(self, conn, data):
         sql = "insert into base (server_name, database, conceitual_data, data_classification, table_schema, table_name, column_name, " \
-              "date_type, column_type, has_sensitive, is_empty_table, regex_ip, regex_phone, regex_email, " \
+              "date_type, column_type, sql, has_sensitive, is_empty_table, regex_ip, regex_phone, regex_email, " \
               "regex_address, regex_links, regex_social_media, regex_cpf, regex_credit_card, regex_name, executed, date) values " \
-              "(?, ?, ?, ?, ?, ?, ?, ?, ?, '" + self.has_sensitive + "', '" + self.is_empty_table + "', '" + self.regexp_ip +\
-              "', '" + self.regex_phone + "', '" + self.regexp_email + "', '" + self.regex_address + "', '" + self.regex_links +\
-              "', '" + self.regex_social_media + "', '" + self.regex_cpf + "', '" + self.regex_credit_card + "', '" + self.regex_name + "', '" + self.executed +\
+              "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'" + self.has_sensitive + "', '" + self.is_empty_table + "', '" + self.regexp_ip + \
+              "', '" + self.regex_phone + "', '" + self.regexp_email + "', '" + self.regex_address + "', '" + self.regex_links + \
+              "', '" + self.regex_social_media + "', '" + self.regex_cpf + "', '" + self.regex_credit_card + "', '" + self.regex_name + "', '" + self.executed + \
               "', '" + datetime.today().strftime('%d-%m-%Y %H:%M:%S') + "'); "
 
         cursor = conn.cursor()
         cursor.execute(sql, data)
         conn.commit()
         return cursor.lastrowid
+
+    def replaceNth(s, source, target, n):
+        inds = [i for i in range(len(s) - len(source) + 1) if s[i:i + len(source)] == source]
+        if len(inds) < n:
+            return  # or maybe raise an error
+        s = list(s)  # can't assign to string slices. So, let's listify
+        s[inds[n - 1]:inds[n - 1] + len(
+            source)] = target  # do n-1 because we start from the first occurrence of the string, not the 0-th
+        return ''.join(s)
+
+    def select_config_by_param(conn, param, campo, tabela):
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM configs WHERE param=?", (param,))
+        rows = cur.fetchall()
+        r1 = Sqlite.replaceNth(rows[0][2], '?', campo, 1)
+        r2 = Sqlite.replaceNth(r1, '?', tabela, 1)
+        return r2

@@ -1,7 +1,10 @@
+import time
+import re
 from Classes.Sqlite import Sqlite
 from Classes.Mysql import MysqlDriver
 from Classes.Postgres import Postgres
 
+start_time = time.time()
 server_name = "a1-olden-q-prt1.host.intranet"
 
 if __name__ == '__main__':
@@ -18,6 +21,14 @@ if __name__ == '__main__':
     #     dados = ["conceitual_data", "data_classification", "table_schema", "table_name", "column_name", "date_type", "column_type"]
     #     sqlite = Sqlite()
     #     sqlite.insert_into_base(conn_sqlite, dados)
+    # with conn_sqlite:
+    #   db = Sqlite.select_config_by_param(conn_sqlite, 'select.postgres', 'campo', 'tabela')
+    #   print(db)
+    # a = Sqlite.replaceNth(db, '?', 'campo', 1)
+    # b = Sqlite.replaceNth(a, '?', 'tabela', 1)
+
+    # print(b)
+
 
     # Postgres
     db_pgsql = Postgres("ctl_farruda", "7F7Mea", server_name , "5432", "postgres")
@@ -48,12 +59,13 @@ if __name__ == '__main__':
             rec_tables = cursor_pgsql.fetchall()
             for rt in rec_tables:
                 with conn_sqlite:
-                    dados = [server_name, rd[0], "NI", "NI", rt[0], rt[1], rt[2], "NI", rt[3]]
+                    dados = [server_name, rd[0], "NI", "NI", rt[0], rt[1], rt[2], "NI", rt[3], Sqlite.select_config_by_param(conn_sqlite, 'select.postgres', rt[2] ,rt[0] + "." + rt[1])]
+                    # Sqlite.select_config_by_param(conn_sqlite, 'select.postgres', 'campo', 'tabela')
                     sqlite = Sqlite()
                     sqlite.insert_into_base(conn_sqlite, dados)
                 # print(*rt)
 
         db_pgsql.close_connection()
 
-
+print("Execution: %s seconds." % (time.time() - start_time))
 
