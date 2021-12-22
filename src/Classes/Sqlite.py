@@ -147,6 +147,11 @@ class Sqlite:
         cur = conn.cursor()
         cur.execute("SELECT * FROM configs WHERE param=?", (param,))
         rows = cur.fetchall()
-        r1 = Sqlite.replaceNth(rows[0][2], '?', campo, 1)
-        r2 = Sqlite.replaceNth(r1, '?', tabela, 1)
-        return r2
+
+        for r in rows:
+            if rows is not None:
+                r1 = Sqlite.replaceNth(rows[0][2], '?', campo, 1)
+                r2 = Sqlite.replaceNth(r1, '?', tabela, 1)
+                return r2
+
+        return f"Paramêtro: {param}, não encontrado."
