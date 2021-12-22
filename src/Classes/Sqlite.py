@@ -154,4 +154,4 @@ class Sqlite:
                 r2 = Sqlite.replaceNth(r1, '?', tabela, 1)
                 return r2
 
-        return f"Paramêtro: {param}, não encontrado."
+        return f"Paramêtro: '{param}', não encontrado."
