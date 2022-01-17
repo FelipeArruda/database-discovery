@@ -122,9 +122,9 @@ class Sqlite:
 
     def insert_into_base(self, conn, data):
         sql = "insert into base (server_name, database, conceitual_data, data_classification, table_schema, table_name, column_name, " \
-              "date_type, column_type, sql, has_sensitive, is_empty_table, regex_ip, regex_phone, regex_email, " \
+              "date_type, column_type, sql, base, has_sensitive, is_empty_table, regex_ip, regex_phone, regex_email, " \
               "regex_address, regex_links, regex_social_media, regex_cpf, regex_credit_card, regex_name, executed, date) values " \
-              "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?,'" + self.has_sensitive + "', '" + self.is_empty_table + "', '" + self.regexp_ip + \
+              "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '" + self.has_sensitive + "', '" + self.is_empty_table + "', '" + self.regexp_ip + \
               "', '" + self.regex_phone + "', '" + self.regexp_email + "', '" + self.regex_address + "', '" + self.regex_links + \
               "', '" + self.regex_social_media + "', '" + self.regex_cpf + "', '" + self.regex_credit_card + "', '" + self.regex_name + "', '" + self.executed + \
               "', '" + datetime.today().strftime('%d-%m-%Y %H:%M:%S') + "'); "
@@ -151,7 +151,15 @@ class Sqlite:
         for r in rows:
             if rows is not None:
                 r1 = Sqlite.replaceNth(rows[0][2], '?', campo, 1)
-                r2 = Sqlite.replaceNth(r1, '?', tabela, 1)
-                return r2
+                r1 = Sqlite.replaceNth(r1, '?', tabela, 1)
+                r1 = Sqlite.replaceNth(r1, '?', campo, 1)
+                return r1
 
         return f"Paramêtro: '{param}', não encontrado."
+
+    def select_all_data(conn, base):
+        cur = conn.cursor()
+        cur.execute("SELECT database, sql FROM base b where b.base=? and b.executed = 'N'", (base,))
+        rows = cur.fetchall()
+
+        return rows
